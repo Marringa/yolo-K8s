@@ -1,0 +1,68 @@
+version: '3'
+# frontend yolomy
+services:
+  frontend:
+    build:
+      context: client
+      dockerfile: Dockerfile
+    tty: true
+    stdin_open: true #keep terminal running
+    container_name: yolo-k8s-frontend-1
+    image: mngaruiya/yolo-client-k8s:1.0.0
+    ports:
+      - "3000:3000"     
+    depends_on:
+      - backend 
+    networks:
+       yolo-k8s_default:
+        ipv4_address: 172.22.0.5
+
+
+# Backend yolomy
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    tty: true
+    container_name: yolo-k8s-backend-1 
+    image: mngaruiya/yolo-backend-k8s:1.0.0
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      MONGODB_URI: 'mongodb://yolo-k8s:yolo-k8s@172.22.0.7:27017/'
+    depends_on:
+      - database
+    networks:
+       yolo-k8s_default:
+        ipv4_address: 172.22.0.6
+
+  database:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: yolo-k8s
+      MONGO_INITDB_ROOT_PASSWORD: yolo-k8s
+    ports:
+      - 27017:27017
+    networks:
+       yolo-k8s_default:
+        ipv4_address: 172.22.0.7
+
+      
+networks:
+  yolo-k8s_default:
+    ipam:
+          driver: default
+          config:
+           - subnet: 172.22.0.0/16
+
+
+
+
+    
+    
+    
+    
+    
+    
+
